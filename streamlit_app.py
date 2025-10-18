@@ -1,47 +1,39 @@
 # streamlit_app.py
 import streamlit as st
-import streamlit.components.v1 as components
-from assistant import NEOAssistant
-import threading
-import time
+from assistant import NEOAssistant  # Updated Streamlit-safe version
 import os
 
 st.set_page_config(page_title='NEO Assistant', layout='wide')
-st.title('NEO — Personal Desktop Assistant')
+st.title('🤖 NEO — Personal AI Assistant (Web Version)')
 
 neo = NEOAssistant()
 
-col1, col2 = st.columns([2, 1])
+# Sidebar / Logo
+with st.sidebar:
+    st.header("🚀 NEO Web Mode")
+    st.write("Type commands below. Mic TTS disabled for web.")
+    st.write("---")
+    st.write("✔ Examples:")
+    st.code("open youtube\nwikipedia India\ntime\nplay music\nscreenshot* (local only)")
 
-with col1:
-    st.header('Controls')
+# Command Box
+command = st.text_input("💬 Type your command (Ex: open google, time, wikipedia Elon Musk):")
 
-    if st.button('Greet by time'):
-        neo.greet_by_time()
-
-    if st.button('Listen (once)'):
-        st.info('Listening... speak into your mic (6s max)')
-        query = neo.listen_once()
-        st.write('You said:', query)
-        if query:
-            res = neo.handle_command(query)
-            st.write('Result:', res)
-
-    cmd = st.text_input('Or type a command (e.g. "open youtube", "time", "screenshot")')
-    if st.button('Run command'):
-        if cmd.strip():
-            res = neo.handle_command(cmd.lower())
-            st.write('Result:', res)
-
-with col2:
-    st.header('NEO Logo / Splash')
-    logo_path = os.path.join('web_assets', 'neo_logo.html')
-    if os.path.exists(logo_path):
-        with open(logo_path, 'r', encoding='utf-8') as f:
-            html_code = f.read()
-        components.html(html_code, height=500)
+if st.button("Run Command"):
+    if command.strip():
+        result = neo.handle_command(command.lower())
+        st.success(f"🧠 **NEO:** {result}")
     else:
-        st.write('Logo file missing: web_assets/neo_logo.html')
+        st.warning("Please enter a command.")
 
-st.write('---')
-st.caption('NEO: speech works locally using your microphone and TTS uses the system voice via pyttsx3')
+# Local-only Notice
+st.write("---")
+st.caption("⚠ Voice input, WhatsApp, Screenshot & Email only work in Desktop version.")
+
+# Optional Logo Section
+if os.path.exists('web_assets/neo_logo.html'):
+    with open('web_assets/neo_logo.html', 'r', encoding='utf-8') as f:
+        html_code = f.read()
+    st.components.v1.html(html_code, height=500)
+else:
+    st.info("🌐 Add `web_assets/neo_logo.html` for logo preview.")
